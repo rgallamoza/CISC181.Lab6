@@ -32,7 +32,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.shape.Arc;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.CubicCurveTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -256,14 +258,53 @@ public class PokerTableController implements Initializable {
 			TranslateTransition transT = CreateTranslateTransition(pntDeck, pntCardDealt, img);
 
 			RotateTransition rotT = CreateRotateTransition(img);
+			rotT.setCycleCount(8);
+			
 			ScaleTransition scaleT = CreateScaleTransition(img);
+			scaleT.setCycleCount(2);
+			scaleT.setAutoReverse(true);
+			scaleT.setByX(0.5);
+			scaleT.setByY(0.5);
+		     
 			PathTransition pathT = CreatePathTransition(pntDeck,
 			 pntCardDealt, img);
-
-			ParallelTransition patTMoveRot = new ParallelTransition();
-			patTMoveRot.getChildren().addAll(rotT, pathT);
+			CubicCurve path = new CubicCurve();
+			if(iPosition==1){
+				path.setStartX(50);
+				path.setStartY(OuterBorderPane.getHeight()/2-50);
+				path.setControlX1(pntCardDealt.getX()*0.33);
+				path.setControlY1(OuterBorderPane.getHeight()/2);
+				path.setControlX2(pntCardDealt.getX()*0.67);
+				path.setControlY2(0);
+				path.setEndX(pntCardDealt.getX()+25);
+				path.setEndY(pntCardDealt.getY());
+			}
+			else{
+				path.setStartX(50);
+				path.setStartY(OuterBorderPane.getHeight()/2-50);
+				path.setControlX1(pntCardDealt.getX()*0.33);
+				path.setControlY1(OuterBorderPane.getHeight()/2);
+				path.setControlX2(pntCardDealt.getX()*0.67);
+				path.setControlY2(OuterBorderPane.getHeight());
+				path.setEndX(pntCardDealt.getX()+25);
+				path.setEndY(pntCardDealt.getY());
+			}
+			
+			pathT.setPath(path);
+			
+			FadeTransition fadeT = new FadeTransition(Duration.millis(300),img);
+			fadeT.setFromValue(1.0);
+			fadeT.setToValue(0);
+			fadeT.setCycleCount(1);
+			fadeT.setAutoReverse(false);
+			fadeT.setDelay(Duration.millis(800));
+			
+			
+			
+			ParallelTransition patTMoveRot = new ParallelTransition(rotT,scaleT,pathT,fadeT);
+			//patTMoveRot.getChildren().addAll(rotT, pathT);
 			// patTMoveRot.getChildren().addAll(pathT, rotT);
-
+			
 			ParallelTransition patTFadeInFadeOut = createFadeTransition(
 					(ImageView) getCardHBox(iPosition).getChildren().get(iDrawCard),
 					imgDealCard.getImage());
